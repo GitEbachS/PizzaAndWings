@@ -30,11 +30,11 @@ namespace PizzaAndWings.Controllers
                         o.PaymentTypeId,
                         PaymentType = o.PaymentType.Type,
                         TotalWithTip = o.TotalWithTip, // Use TotalWithTip property instead of Total
-                        Items = o.Items.Select(i => new
+                        Items = o.Items.Select(orderItem => new
                         {
-                            i.Id,
-                            i.OrderItem,
-                            i.OrderPrice
+                            orderItem.Id,
+                            OrderItem = orderItem.Item.Name, 
+                            OrderPrice = orderItem.Item.OrderPrice
                         })
                     })
                     .ToList();

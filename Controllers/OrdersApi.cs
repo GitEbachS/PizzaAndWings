@@ -33,7 +33,7 @@ namespace PizzaAndWings.Controllers
                         Items = o.Items.Select(orderItem => new
                         {
                             orderItem.Id,
-                            OrderItem = orderItem.Item.Name, 
+                            Name = orderItem.Item.Name, 
                             OrderPrice = orderItem.Item.OrderPrice
                         })
                     })

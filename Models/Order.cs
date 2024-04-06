@@ -17,8 +17,8 @@ public class Order
     public PaymentType PaymentType { get; set; }
     public int OrderTypeId { get; set; }
     public OrderType OrderType { get; set; }
-    public ICollection<Item>? Items { get; set; }
-    public DateTime DateClosed { get; set; }
+    public List<OrderItem>? Items { get; set; }
+    public DateTime? DateClosed { get; set; }
 
 
     // Method to calculate the total price of all items in the order
@@ -30,7 +30,7 @@ public class Order
             return;
         }
 
-        ItemTotal = Items.Sum(Item => Item.OrderPrice);
+        ItemTotal = Items.Sum(orderItem => orderItem.Item.OrderPrice);
     }
  
 }

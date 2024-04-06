@@ -19,7 +19,8 @@ namespace PizzaAndWings.Controllers
                         o.Id,
                         FullName = $"{o.FirstName} {o.LastName}",
                         o.Email,
-                        DateClosed = o.DateClosed.ToString("MM/dd/yyyy"),
+                        DateClosed = o.DateClosed.HasValue ? o.DateClosed.Value.ToString("MM/dd/yyyy") : null,
+
                         o.Phone,
                         o.OrderTypeId,
                         OrderType = o.OrderType.Type,

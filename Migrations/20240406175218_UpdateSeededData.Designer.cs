@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PizzaAndWings.Migrations
 {
     [DbContext(typeof(PizzaAndWingsDbContext))]
-    partial class PizzaAndWingsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240406175218_UpdateSeededData")]
+    partial class UpdateSeededData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,7 +31,10 @@ namespace PizzaAndWings.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OrderItem")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -38,61 +43,63 @@ namespace PizzaAndWings.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderId");
+
                     b.ToTable("Items");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Name = "Pepperoni Pizza",
+                            OrderItem = "Pepperoni Pizza",
                             OrderPrice = 15.99m
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Cheese Pizza",
+                            OrderItem = "Cheese Pizza",
                             OrderPrice = 26.50m
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Hot Wings",
+                            OrderItem = "Hot Wings",
                             OrderPrice = 10.00m
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Meaty Pizza",
+                            OrderItem = "Meaty Pizza",
                             OrderPrice = 12.00m
                         },
                         new
                         {
                             Id = 5,
-                            Name = "Supreme Pizza",
+                            OrderItem = "Supreme Pizza",
                             OrderPrice = 12.00m
                         },
                         new
                         {
                             Id = 6,
-                            Name = "BBQ Wings",
+                            OrderItem = "BBQ Wings",
                             OrderPrice = 13.00m
                         },
                         new
                         {
                             Id = 7,
-                            Name = "Boneless Wings",
+                            OrderItem = "Boneless Wings",
                             OrderPrice = 14.00m
                         },
                         new
                         {
                             Id = 8,
-                            Name = "Buffalo Wings",
+                            OrderItem = "Buffalo Wings",
                             OrderPrice = 12.00m
                         },
                         new
                         {
                             Id = 9,
-                            Name = "Cheese Stuffed Crust Pizza",
+                            OrderItem = "Cheese Stuffed Crust Pizza",
                             OrderPrice = 22.00m
                         });
                 });
@@ -105,7 +112,7 @@ namespace PizzaAndWings.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("DateClosed")
+                    b.Property<DateTime>("DateClosed")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
@@ -201,32 +208,9 @@ namespace PizzaAndWings.Migrations
                             OrderTypeId = 2,
                             PaymentTypeId = 1,
                             Phone = "615-555-9997",
-                            Status = false,
+                            Status = true,
                             Tip = 7.00m
                         });
-                });
-
-            modelBuilder.Entity("PizzaAndWings.Models.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("PizzaAndWings.Models.OrderType", b =>
@@ -324,6 +308,13 @@ namespace PizzaAndWings.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PizzaAndWings.Models.Item", b =>
+                {
+                    b.HasOne("PizzaAndWings.Models.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId");
+                });
+
             modelBuilder.Entity("PizzaAndWings.Models.Order", b =>
                 {
                     b.HasOne("PizzaAndWings.Models.OrderType", "OrderType")
@@ -341,30 +332,6 @@ namespace PizzaAndWings.Migrations
                     b.Navigation("OrderType");
 
                     b.Navigation("PaymentType");
-                });
-
-            modelBuilder.Entity("PizzaAndWings.Models.OrderItem", b =>
-                {
-                    b.HasOne("PizzaAndWings.Models.Item", "Item")
-                        .WithMany("Order")
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PizzaAndWings.Models.Order", "Order")
-                        .WithMany("Items")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Item");
-
-                    b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("PizzaAndWings.Models.Item", b =>
-                {
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("PizzaAndWings.Models.Order", b =>

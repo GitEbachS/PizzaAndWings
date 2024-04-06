@@ -18,6 +18,10 @@ public class Order
     public int OrderTypeId { get; set; }
     public OrderType OrderType { get; set; }
     public List<OrderItem>? Items { get; set; }
+    public Order()
+    {
+        Items = new List<OrderItem>();
+    }
     public DateTime? DateClosed { get; set; }
 
 

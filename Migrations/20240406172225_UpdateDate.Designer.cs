@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PizzaAndWings.Migrations
 {
     [DbContext(typeof(PizzaAndWingsDbContext))]
-    partial class PizzaAndWingsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240406172225_UpdateDate")]
+    partial class UpdateDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,9 +123,6 @@ namespace PizzaAndWings.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("ItemTotal")
-                        .HasColumnType("numeric");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -159,7 +158,6 @@ namespace PizzaAndWings.Migrations
                             DateClosed = new DateTime(2024, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "shari@shari.com",
                             FirstName = "Shari",
-                            ItemTotal = 0m,
                             LastName = "Berry",
                             OrderTypeId = 2,
                             PaymentTypeId = 1,
@@ -173,7 +171,6 @@ namespace PizzaAndWings.Migrations
                             DateClosed = new DateTime(2024, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "Joey@yahoo.com",
                             FirstName = "Joey",
-                            ItemTotal = 0m,
                             LastName = "Boe",
                             OrderTypeId = 1,
                             PaymentTypeId = 2,
@@ -187,7 +184,6 @@ namespace PizzaAndWings.Migrations
                             DateClosed = new DateTime(2024, 1, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "tim@gmail.com",
                             FirstName = "Tim",
-                            ItemTotal = 0m,
                             LastName = "Ebert",
                             OrderTypeId = 1,
                             PaymentTypeId = 3,
@@ -201,7 +197,6 @@ namespace PizzaAndWings.Migrations
                             DateClosed = new DateTime(2024, 8, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "Sam@gmail.com",
                             FirstName = "Sam",
-                            ItemTotal = 0m,
                             LastName = "Hill",
                             OrderTypeId = 2,
                             PaymentTypeId = 1,

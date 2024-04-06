@@ -30,10 +30,10 @@ public class PizzaAndWingsDbContext : DbContext
         // seed data with orders
         modelBuilder.Entity<Order>().HasData(new Order[]
         {
-        new Order {Id = 1, FirstName = "Shari", LastName = "Berry", Email = "shari@shari.com", Phone = "615-999-7777", Status = false, Tip = 6.00M, PaymentTypeId = 1, OrderTypeId = 2, DateCreated = new DateTime(2024, 6, 11)},
-        new Order {Id = 2, FirstName = "Joey", LastName = "Boe", Email = "Joey@yahoo.com", Phone = "615-322-7337", Status = false, Tip = 9.00M, PaymentTypeId = 2, OrderTypeId = 1, DateCreated = new DateTime(2024, 3, 15)},
-        new Order {Id = 3, FirstName = "Tim", LastName = "Ebert", Email = "tim@gmail.com", Phone = "615-229-2227", Status = false, Tip = 6.00M, PaymentTypeId = 3, OrderTypeId = 1, DateCreated = new DateTime(2024, 1, 14)},
-        new Order {Id = 4, FirstName = "Sam", LastName = "Hill", Email = "Sam@gmail.com", Phone = "615-555-9997", Status = true, Tip = 7.00M, PaymentTypeId = 1, OrderTypeId = 2, DateCreated = new DateTime(2024, 8, 10)},
+        new Order {Id = 1, FirstName = "Shari", LastName = "Berry", Email = "shari@shari.com", Phone = "615-999-7777", Status = false, Tip = 6.00M, PaymentTypeId = 1, OrderTypeId = 2, DateClosed = new DateTime(2024, 6, 11)},
+        new Order {Id = 2, FirstName = "Joey", LastName = "Boe", Email = "Joey@yahoo.com", Phone = "615-322-7337", Status = false, Tip = 9.00M, PaymentTypeId = 2, OrderTypeId = 1, DateClosed = new DateTime(2024, 3, 15)},
+        new Order {Id = 3, FirstName = "Tim", LastName = "Ebert", Email = "tim@gmail.com", Phone = "615-229-2227", Status = false, Tip = 6.00M, PaymentTypeId = 3, OrderTypeId = 1, DateClosed = new DateTime(2024, 1, 14)},
+        new Order {Id = 4, FirstName = "Sam", LastName = "Hill", Email = "Sam@gmail.com", Phone = "615-555-9997", Status = true, Tip = 7.00M, PaymentTypeId = 1, OrderTypeId = 2, DateClosed = new DateTime(2024, 8, 10)},
         });
 
         // seed data with order types

@@ -10,7 +10,7 @@ public class PizzaAndWingsDbContext : DbContext
     public DbSet<OrderType> OrderTypes { get; set; }
     public DbSet<PaymentType> PaymentTypes { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<OrderItem> OrderItem { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

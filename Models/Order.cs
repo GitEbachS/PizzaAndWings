@@ -10,10 +10,9 @@ public class Order
     public string Email { get; set; }
     public string Phone { get; set; }
     public bool Status { get; set; }
-    public decimal ItemTotal { get; set; }
     public decimal TotalWithTip => ItemTotal + Tip;
     public decimal Tip { get; set; }
-    public int PaymentTypeId { get; set; }
+    public int? PaymentTypeId { get; set; }
     public PaymentType PaymentType { get; set; }
     public int OrderTypeId { get; set; }
     public OrderType OrderType { get; set; }
@@ -23,19 +22,19 @@ public class Order
         Items = new List<OrderItem>();
     }
     public DateTime? DateClosed { get; set; }
-
-
-    // Method to calculate the total price of all items in the order
-    public void CalculateItemTotal()
+    public decimal ItemTotal
     {
-        if (Items == null)
+        get
         {
-            ItemTotal = 0;
-            return;
+            if (Items != null)
+            {
+                return Items.Sum(orderItem => orderItem.Item.OrderPrice);
+            }
+            return 0;
         }
-
-        ItemTotal = Items.Sum(orderItem => orderItem.Item.OrderPrice);
+        
     }
- 
+
+
 }
 

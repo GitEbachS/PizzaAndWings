@@ -181,7 +181,9 @@ namespace PizzaAndWings.Controllers
             {
              
                 var closedOrders = db.Orders
-                    .Where(o => o.Status)
+                .Include(o => o.Items)
+                .ThenInclude(oi => oi.Item)
+                    .Where(o => !o.Status)
                     .ToList(); 
 
                 

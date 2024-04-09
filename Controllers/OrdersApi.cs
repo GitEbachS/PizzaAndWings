@@ -49,6 +49,50 @@ namespace PizzaAndWings.Controllers
 
             });
 
+            //get the single order details
+            app.MapGet("/api/order/{orderId}", (PizzaAndWingsDbContext db, int orderId) =>
+            {
+                var singleOrder = db.Orders
+                                  .Include(o => o.Items)
+                                  .ThenInclude(oi => oi.Item)
+                                  .Include(o => o.PaymentType)
+                                  .Include(o => o.OrderType)
+                                  .Where(o => o.Id == orderId)
+                                  .Select(o => new
+                                  {
+                                      o.Id,
+                                      FullName = $"{o.FirstName} {o.LastName}",
+                                      o.Email,
+                                      DateClosed = o.DateClosed.HasValue ? o.DateClosed.Value.ToString("MM/dd/yyyy") : null,
+
+                                      o.Phone,
+                                      o.OrderTypeId,
+                                      OrderType = o.OrderType.Type,
+                                      o.Status,
+                                      ItemTotal = o.ItemTotal, // Use ItemTotal property instead of Total
+                                      o.Tip,
+                                      o.PaymentTypeId,
+                                      PaymentType = o.PaymentType.Type,
+                                      TotalWithTip = o.TotalWithTip, // Use TotalWithTip property instead of Total
+                                      Items = o.Items.Select(orderItem => new
+                                      {
+                                          OrderItemId = orderItem.Id,
+                                          ItemId = orderItem.Item.Id, // Include ItemId from OrderItem
+                                          Name = orderItem.Item.Name,
+                                          OrderPrice = orderItem.Item.OrderPrice
+                                      })
+                                  })
+                                  .SingleOrDefault();
+
+                if (singleOrder == null)
+                {
+                    return Results.NotFound();
+                }
+
+                return Results.Ok(singleOrder);
+            });
+        
+
             // create new order
             app.MapPost("/api/orders/new", (PizzaAndWingsDbContext db, CreateOrderDto orderDto) =>
             {

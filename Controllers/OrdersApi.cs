@@ -144,8 +144,10 @@ namespace PizzaAndWings.Controllers
                 }
 
                 orderToUpdate.Id = orderDto.OrderId;
+                orderToUpdate.Status = false;
                 orderToUpdate.PaymentTypeId = orderDto.PaymentTypeId;
                 orderToUpdate.Tip = orderDto.Tip;
+                orderToUpdate.DateClosed = DateTime.Now;
                
 
                 db.SaveChanges();
@@ -173,6 +175,23 @@ namespace PizzaAndWings.Controllers
                 await db.SaveChangesAsync();
                 return Results.Ok("Items removed from order successfully.");
             });
+
+            // Calculate total revenue including item totals for orders with status closed
+            app.MapGet("/total-revenue", (PizzaAndWingsDbContext db) =>
+            {
+             
+                var closedOrders = db.Orders
+                    .Where(o => o.Status)
+                    .ToList(); 
+
+                
+                decimal totalItemTotal = closedOrders.Sum(o => o.ItemTotal);
+
+                return Results.Ok(new { TotalItemTotal = totalItemTotal });
+            });
+
+
+
         }
     }
 }

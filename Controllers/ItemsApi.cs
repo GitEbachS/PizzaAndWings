@@ -38,37 +38,22 @@ namespace PizzaAndWings.Controllers
             });
 
             // Delete item from order
-            app.MapDelete("/api/orders/{orderId}/items/{orderItemId}", async (PizzaAndWingsDbContext db, int orderId, int orderItemId) =>
+            app.MapDelete("/api/items/{orderId}/remove/{itemId}", (PizzaAndWingsDbContext db, int orderId, int itemId) =>
             {
-                // Find the order by its ID
-                Order order = await db.Orders
-                                      .Include(o => o.Items) //include list of orderItems
-                                      .FirstOrDefaultAsync(o => o.Id == orderId);
-
-                if (order == null)
+                OrderItem orderItemToDelete = db.OrderItems
+                                              .Where(oi => oi.Order.Id == orderId)
+                                              .Where(oi => oi.Item.Id == itemId)
+                                               .FirstOrDefault();
+                if (orderItemToDelete == null)
                 {
-                    return Results.NotFound("Order not found.");
+                    return Results.NotFound();
                 }
 
-                // Find the OrderItem by its Id
-                OrderItem orderItemToRemove = order.Items.FirstOrDefault(oi => oi.Id == orderItemId);
-
-                if (orderItemToRemove == null)
-                {
-                    return Results.NotFound("Order item not found.");
-                }
-
-
-
-                db.OrderItems.Remove(orderItemToRemove);
-
-                // Save changes to the database
-                await db.SaveChangesAsync();
-
-               
-
-                return Results.Ok("Item removed from order successfully.");
+                db.OrderItems.Remove(orderItemToDelete);
+                db.SaveChanges();
+                return Results.NoContent();
             });
+
         }
     }
 }

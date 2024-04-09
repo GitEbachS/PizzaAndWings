@@ -12,7 +12,9 @@ namespace PizzaAndWings.Controllers
             app.MapGet("/api/orders", (PizzaAndWingsDbContext db) =>
             {
                 var orders = db.Orders
+                //include orderItems list
                     .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Item)
                     .Include(o => o.PaymentType)
                     .Include(o => o.OrderType)
                     .Where(o => o.DateClosed <= DateTime.UtcNow)
@@ -66,6 +68,7 @@ namespace PizzaAndWings.Controllers
                 return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
             });
 
+            //update main order
             app.MapPut("/api/orders/{orderId}", (PizzaAndWingsDbContext db, int orderId, Order updatedOrder) =>
             {
                 var orderToUpdate = db.Orders.SingleOrDefault(o => o.Id == orderId);
@@ -86,6 +89,26 @@ namespace PizzaAndWings.Controllers
                 return Results.Ok(orderToUpdate);
             });
 
+            //update closed order
+            app.MapPut("/api/closedOrders/", (PizzaAndWingsDbContext db, int orderId, ClosedOrderDto orderDto) =>
+            {
+                var orderToUpdate = db.Orders.FirstOrDefault(o => o.Id == orderDto.OrderId);
+
+                if (orderToUpdate == null)
+                {
+                    return Results.NotFound();
+                }
+
+                orderToUpdate.Id = orderDto.OrderId;
+                orderToUpdate.PaymentTypeId = orderDto.PaymentTypeId;
+                orderToUpdate.Tip = orderDto.Tip;
+               
+
+                db.SaveChanges();
+
+                return Results.Ok(orderToUpdate);
+            });
+
             //Delete Order
             app.MapDelete("/api/orders/{orderId}/items", async (PizzaAndWingsDbContext db, int orderId) =>
             {
@@ -100,7 +123,7 @@ namespace PizzaAndWings.Controllers
 
                 foreach (var orderItem in order.Items)
                 {
-                    db.OrderItem.Remove(orderItem);
+                    db.OrderItems.Remove(orderItem);
                 }
 
                 await db.SaveChangesAsync();

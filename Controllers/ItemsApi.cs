@@ -31,8 +31,7 @@ namespace PizzaAndWings.Controllers
                     Order = order
                 };
 
-                // Add the item to the order and recalculate the total
-                order.AddItem(orderItem);
+                db.OrderItems.Add(orderItem);
 
                 await db.SaveChangesAsync();
                 return Results.Ok();
@@ -43,7 +42,7 @@ namespace PizzaAndWings.Controllers
             {
                 // Find the order by its ID
                 Order order = await db.Orders
-                                      .Include(o => o.Items)
+                                      .Include(o => o.Items) //include list of orderItems
                                       .FirstOrDefaultAsync(o => o.Id == orderId);
 
                 if (order == null)
@@ -52,21 +51,21 @@ namespace PizzaAndWings.Controllers
                 }
 
                 // Find the OrderItem by its Id
-                OrderItem orderItem = order.Items.FirstOrDefault(oi => oi.Id == orderItemId);
+                OrderItem orderItemToRemove = order.Items.FirstOrDefault(oi => oi.Id == orderItemId);
 
-                if (orderItem == null)
+                if (orderItemToRemove == null)
                 {
                     return Results.NotFound("Order item not found.");
                 }
 
-                // Remove the OrderItem from the order
-                order.RemoveItem(orderItem);
 
-                // Remove the OrderItem from the database
-                db.OrderItems.Remove(orderItem);
+
+                db.OrderItems.Remove(orderItemToRemove);
 
                 // Save changes to the database
                 await db.SaveChangesAsync();
+
+               
 
                 return Results.Ok("Item removed from order successfully.");
             });

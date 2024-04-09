@@ -9,7 +9,7 @@ namespace PizzaAndWings.Controllers
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/orders", (PizzaAndWingsDbContext db) =>
+            app.MapGet("/api/orders", (PizzaAndWingsDbContext db) =>
             {
                 var orders = db.Orders
                     .Include(o => o.Items)
@@ -35,8 +35,9 @@ namespace PizzaAndWings.Controllers
                         TotalWithTip = o.TotalWithTip, // Use TotalWithTip property instead of Total
                         Items = o.Items.Select(orderItem => new
                         {
-                            orderItem.Id,
-                            Name = orderItem.Item.Name, 
+                            OrderItemId = orderItem.Id,
+                            ItemId = orderItem.Item.Id, // Include ItemId from OrderItem
+                            Name = orderItem.Item.Name,
                             OrderPrice = orderItem.Item.OrderPrice
                         })
                     })
@@ -46,29 +47,27 @@ namespace PizzaAndWings.Controllers
 
             });
 
-            //create new order
             // create new order
             app.MapPost("/api/orders/new", (PizzaAndWingsDbContext db, CreateOrderDto orderDto) =>
             {
-                
-                    Order newOrder = new()
-                    {
-                        FirstName = orderDto.FirstName,
-                        LastName = orderDto.LastName,
-                        Email = orderDto.Email,
-                        Phone = orderDto.Phone,
-                        OrderTypeId = orderDto.OrderTypeId,
-                        Status = true,
-                    };
+                Order newOrder = new()
+                {
+                    FirstName = orderDto.FirstName,
+                    LastName = orderDto.LastName,
+                    Email = orderDto.Email,
+                    Phone = orderDto.Phone,
+                    OrderTypeId = orderDto.OrderTypeId,
+                    Status = true,
+                };
 
-                    db.Orders.Add(newOrder);
-                    db.SaveChanges();
+                db.Orders.Add(newOrder);
+                db.SaveChanges();
 
-                    return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
-               
+                return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
             });
+
             app.MapPut("/api/orders/{orderId}", (PizzaAndWingsDbContext db, int orderId, Order updatedOrder) =>
-{
+            {
                 var orderToUpdate = db.Orders.SingleOrDefault(o => o.Id == orderId);
 
                 if (orderToUpdate == null)
@@ -77,7 +76,7 @@ namespace PizzaAndWings.Controllers
                 }
 
                 orderToUpdate.FirstName = updatedOrder.FirstName;
-                orderToUpdate.LastName = updatedOrder.LastName;     
+                orderToUpdate.LastName = updatedOrder.LastName;
                 orderToUpdate.Email = updatedOrder.Email;
                 orderToUpdate.Phone = updatedOrder.Phone;
                 orderToUpdate.OrderTypeId = updatedOrder.OrderTypeId;
@@ -87,6 +86,27 @@ namespace PizzaAndWings.Controllers
                 return Results.Ok(orderToUpdate);
             });
 
+            //Delete Order
+            app.MapDelete("/api/orders/{orderId}/items", async (PizzaAndWingsDbContext db, int orderId) =>
+            {
+                Order order = await db.Orders
+                                    .Include(o => o.Items)
+                                    .FirstOrDefaultAsync(o => o.Id == orderId);
+
+                if (order == null)
+                {
+                    return Results.NotFound("Order not found.");
+                }
+
+                foreach (var orderItem in order.Items)
+                {
+                    db.OrderItem.Remove(orderItem);
+                }
+
+                await db.SaveChangesAsync();
+                return Results.Ok("Items removed from order successfully.");
+            });
         }
     }
 }
+

@@ -25,8 +25,21 @@ public class Order
     public DateTime? DateClosed { get; set; }
 
 
+    public void AddItem(OrderItem orderItem)
+    {
+        Items.Add(orderItem);
+        CalculateItemTotal();
+    }
+
+    // Method to remove an item from the order
+    public void RemoveItem(OrderItem orderItem)
+    {
+        Items.Remove(orderItem);
+        CalculateItemTotal();
+    }
+
     // Method to calculate the total price of all items in the order
-    public void CalculateItemTotal()
+    private void CalculateItemTotal()
     {
         if (Items == null)
         {
@@ -34,8 +47,16 @@ public class Order
             return;
         }
 
-        ItemTotal = Items.Sum(orderItem => orderItem.Item.OrderPrice);
+        // Ensure that all OrderItem instances are loaded from the database
+        foreach (var orderItem in Items)
+        {
+            // Ensure that Item is not null before accessing its properties
+            if (orderItem.Item != null)
+            {
+                ItemTotal += orderItem.Item.OrderPrice;
+            }
+        }
     }
- 
+
 }
 

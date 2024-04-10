@@ -54,6 +54,13 @@ namespace PizzaAndWings.Controllers
                 return Results.NoContent();
             });
 
+            //get all the items
+            app.MapGet("/api/allItems", (PizzaAndWingsDbContext db) =>
+            {
+                var allItems = db.Items;
+                return Results.Ok(allItems);
+            });
+
         }
     }
 }

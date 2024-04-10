@@ -12,10 +12,6 @@ namespace PizzaAndWings.Controllers
             app.MapGet("/api/orders", (PizzaAndWingsDbContext db) =>
             {
                 var orders = db.Orders
-                //include orderItems list
-                    .Include(o => o.Items)
-                    .ThenInclude(oi => oi.Item)
-                    .Include(o => o.PaymentType)
                     .Include(o => o.OrderType)
                     .Where(o => o.DateClosed <= DateTime.UtcNow)
                     .OrderByDescending(o => o.DateClosed)
@@ -29,19 +25,7 @@ namespace PizzaAndWings.Controllers
                         o.Phone,
                         o.OrderTypeId,
                         OrderType = o.OrderType.Type,
-                        o.Status,
-                        ItemTotal = o.ItemTotal, // Use ItemTotal property instead of Total
-                        o.Tip,
-                        o.PaymentTypeId,
-                        PaymentType = o.PaymentType.Type,
-                        TotalWithTip = o.TotalWithTip, // Use TotalWithTip property instead of Total
-                        Items = o.Items.Select(orderItem => new
-                        {
-                            OrderItemId = orderItem.Id,
-                            ItemId = orderItem.Item.Id, // Include ItemId from OrderItem
-                            Name = orderItem.Item.Name,
-                            OrderPrice = orderItem.Item.OrderPrice
-                        })
+                        o.Status
                     })
                     .ToList();
 
@@ -113,7 +97,7 @@ namespace PizzaAndWings.Controllers
             });
 
             //update main order
-            app.MapPut("/api/orders/{orderId}", (PizzaAndWingsDbContext db, int orderId, Order updatedOrder) =>
+            app.MapPut("/api/orders/{orderId}", (PizzaAndWingsDbContext db, int orderId, CreateOrderDto orderDto) =>
             {
                 var orderToUpdate = db.Orders.SingleOrDefault(o => o.Id == orderId);
 
@@ -122,11 +106,12 @@ namespace PizzaAndWings.Controllers
                     return Results.NotFound();
                 }
 
-                orderToUpdate.FirstName = updatedOrder.FirstName;
-                orderToUpdate.LastName = updatedOrder.LastName;
-                orderToUpdate.Email = updatedOrder.Email;
-                orderToUpdate.Phone = updatedOrder.Phone;
-                orderToUpdate.OrderTypeId = updatedOrder.OrderTypeId;
+                orderToUpdate.FirstName = orderDto.FirstName;
+                orderToUpdate.LastName = orderDto.LastName;
+                orderToUpdate.Email = orderDto.Email;
+                orderToUpdate.Phone = orderDto.Phone;
+                orderToUpdate.Status = true;
+                orderToUpdate.OrderTypeId = orderDto.OrderTypeId;
 
                 db.SaveChanges();
 

@@ -17,8 +17,6 @@ namespace PizzaAndWings.Controllers
                
                 User newUser = new User();
                 newUser.Uid = newUserDto.Uid;
-                newUser.Name = newUserDto.Name;
-                newUser.Email = newUserDto.Email;
 
                 db.Users.Add(newUser);
                 db.SaveChanges();

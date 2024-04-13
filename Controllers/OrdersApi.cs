@@ -12,13 +12,9 @@ namespace PizzaAndWings.Controllers
             app.MapGet("/api/orders", (PizzaAndWingsDbContext db) =>
             {
                 var orders = db.Orders
-                //include orderItems list
-                    .Include(o => o.Items)
-                    .ThenInclude(oi => oi.Item)
-                    .Include(o => o.PaymentType)
                     .Include(o => o.OrderType)
-                    .Where(o => o.DateClosed <= DateTime.UtcNow)
-                    .OrderByDescending(o => o.DateClosed)
+                    .Where(o => o.Status == true || o.DateClosed <= DateTime.UtcNow)
+                    .OrderByDescending(o => o.DateClosed.HasValue ? o.DateClosed.Value : DateTime.MaxValue) // Order by DateClosed if not null, otherwise by maximum DateTime
                     .Select(o => new
                     {
                         o.Id,
@@ -29,19 +25,7 @@ namespace PizzaAndWings.Controllers
                         o.Phone,
                         o.OrderTypeId,
                         OrderType = o.OrderType.Type,
-                        o.Status,
-                        ItemTotal = o.ItemTotal, // Use ItemTotal property instead of Total
-                        o.Tip,
-                        o.PaymentTypeId,
-                        PaymentType = o.PaymentType.Type,
-                        TotalWithTip = o.TotalWithTip, // Use TotalWithTip property instead of Total
-                        Items = o.Items.Select(orderItem => new
-                        {
-                            OrderItemId = orderItem.Id,
-                            ItemId = orderItem.Item.Id, // Include ItemId from OrderItem
-                            Name = orderItem.Item.Name,
-                            OrderPrice = orderItem.Item.OrderPrice
-                        })
+                        o.Status
                     })
                     .ToList();
 
@@ -61,6 +45,8 @@ namespace PizzaAndWings.Controllers
                                   .Select(o => new
                                   {
                                       o.Id,
+                                      o.FirstName,
+                                      o.LastName,
                                       FullName = $"{o.FirstName} {o.LastName}",
                                       o.Email,
                                       DateClosed = o.DateClosed.HasValue ? o.DateClosed.Value.ToString("MM/dd/yyyy") : null,
@@ -76,8 +62,8 @@ namespace PizzaAndWings.Controllers
                                       TotalWithTip = o.TotalWithTip, // Use TotalWithTip property instead of Total
                                       Items = o.Items.Select(orderItem => new
                                       {
-                                          OrderItemId = orderItem.Id,
-                                          ItemId = orderItem.Item.Id, // Include ItemId from OrderItem
+                                       
+                                          Id = orderItem.Item.Id, // Include ItemId from OrderItem
                                           Name = orderItem.Item.Name,
                                           OrderPrice = orderItem.Item.OrderPrice
                                       })
@@ -94,7 +80,7 @@ namespace PizzaAndWings.Controllers
         
 
             // create new order
-            app.MapPost("/api/orders/new", (PizzaAndWingsDbContext db, CreateOrderDto orderDto) =>
+            app.MapPost("/api/order/new", (PizzaAndWingsDbContext db, CreateOrderDto orderDto) =>
             {
                 Order newOrder = new()
                 {
@@ -109,11 +95,11 @@ namespace PizzaAndWings.Controllers
                 db.Orders.Add(newOrder);
                 db.SaveChanges();
 
-                return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
+                return Results.Created($"/api/order/{newOrder.Id}", newOrder);
             });
 
             //update main order
-            app.MapPut("/api/orders/{orderId}", (PizzaAndWingsDbContext db, int orderId, Order updatedOrder) =>
+            app.MapPut("/api/orders/{orderId}", (PizzaAndWingsDbContext db, int orderId, CreateOrderDto orderDto) =>
             {
                 var orderToUpdate = db.Orders.SingleOrDefault(o => o.Id == orderId);
 
@@ -122,11 +108,13 @@ namespace PizzaAndWings.Controllers
                     return Results.NotFound();
                 }
 
-                orderToUpdate.FirstName = updatedOrder.FirstName;
-                orderToUpdate.LastName = updatedOrder.LastName;
-                orderToUpdate.Email = updatedOrder.Email;
-                orderToUpdate.Phone = updatedOrder.Phone;
-                orderToUpdate.OrderTypeId = updatedOrder.OrderTypeId;
+                orderToUpdate.FirstName = orderDto.FirstName;
+                orderToUpdate.LastName = orderDto.LastName;
+                orderToUpdate.Email = orderDto.Email;
+                orderToUpdate.Phone = orderDto.Phone;
+                orderToUpdate.OrderTypeId = orderDto.OrderTypeId;
+                orderToUpdate.Status = true;
+               
 
                 db.SaveChanges();
 
@@ -134,7 +122,7 @@ namespace PizzaAndWings.Controllers
             });
 
             //update closed order
-            app.MapPut("/api/closedOrders/", (PizzaAndWingsDbContext db, int orderId, ClosedOrderDto orderDto) =>
+            app.MapPut("/api/closedOrders/", (PizzaAndWingsDbContext db, ClosedOrderDto orderDto) =>
             {
                 var orderToUpdate = db.Orders.FirstOrDefault(o => o.Id == orderDto.OrderId);
 
@@ -190,6 +178,18 @@ namespace PizzaAndWings.Controllers
                 decimal totalItemTotal = closedOrders.Sum(o => o.ItemTotal);
 
                 return Results.Ok(new { TotalItemTotal = totalItemTotal });
+            });
+
+            //get list of orderItems
+            app.MapGet("/api/orderItems/", (PizzaAndWingsDbContext db) =>
+            {
+                var orderItemList = db.OrderItems
+                                    .Include(oi => oi.Order)
+                                    .Include(oi => oi.Item)
+                                    .ToList();
+
+                return Results.Ok(orderItemList);
+              
             });
 
 

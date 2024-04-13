@@ -57,7 +57,7 @@ public class PizzaAndWingsDbContext : DbContext
         // seed data with users
         modelBuilder.Entity<User>().HasData(new User[]
         {
-        new User {Id = 1, Name = "Shari Ebach", Email = "shariebach@gmail.com", Uid = null},
+        new User {Id = 1, Uid = null},
         });
 
     }

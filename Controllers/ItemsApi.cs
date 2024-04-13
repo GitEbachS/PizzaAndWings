@@ -9,7 +9,7 @@ namespace PizzaAndWings.Controllers
         public static void Map(WebApplication app)
         {
             //add item to order
-            app.MapPost("order/addItem", async (PizzaAndWingsDbContext db, AddItemToOrderDto addItemToOrderDto) =>
+            app.MapPost("/api/order/addItem", async (PizzaAndWingsDbContext db, AddItemToOrderDto addItemToOrderDto) =>
             {
                 Order order = await db.Orders
                                     .FirstOrDefaultAsync(o => o.Id == addItemToOrderDto.OrderId);
@@ -57,8 +57,22 @@ namespace PizzaAndWings.Controllers
             //get all the items
             app.MapGet("/api/allItems", (PizzaAndWingsDbContext db) =>
             {
-                var allItems = db.Items;
-                return Results.Ok(allItems);
+                var items = db.Items.ToList();
+                return Results.Ok(items);
+
+            });
+
+            //get check item Ids for the order to use in handleClick
+            app.MapGet("/api/orderItems/{orderId}", (PizzaAndWingsDbContext db, int orderId) =>
+            {
+                var checkItems = db.OrderItems
+                                .Where(oi => oi.Order.Id == orderId)
+                                .Select(oi => oi.Item.Id).ToArray();
+                if (checkItems == null)
+                {
+                    return Results.NotFound();
+                }
+                return Results.Ok(checkItems);
             });
 
         }

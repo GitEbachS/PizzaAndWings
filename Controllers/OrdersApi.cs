@@ -65,6 +65,7 @@ namespace PizzaAndWings.Controllers
                                        
                                           Id = orderItem.Item.Id, // Include ItemId from OrderItem
                                           Name = orderItem.Item.Name,
+                                          Image = orderItem.Item.Image,
                                           OrderPrice = orderItem.Item.OrderPrice
                                       })
                                   })

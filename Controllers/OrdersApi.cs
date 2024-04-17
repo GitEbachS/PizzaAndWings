@@ -65,6 +65,7 @@ namespace PizzaAndWings.Controllers
                                        
                                           Id = orderItem.Item.Id, // Include ItemId from OrderItem
                                           Name = orderItem.Item.Name,
+                                          Image = orderItem.Item.Image,
                                           OrderPrice = orderItem.Item.OrderPrice
                                       })
                                   })
@@ -159,9 +160,9 @@ namespace PizzaAndWings.Controllers
                 {
                     db.OrderItems.Remove(orderItem);
                 }
-
+                db.Orders.Remove(order);
                 await db.SaveChangesAsync();
-                return Results.Ok("Items removed from order successfully.");
+                return Results.NoContent();
             });
 
             // Calculate total revenue including item totals for orders with status closed
@@ -192,7 +193,29 @@ namespace PizzaAndWings.Controllers
               
             });
 
+            //Search posts by Title
+            app.MapGet("/orders/search/{query}", (PizzaAndWingsDbContext db, string query) =>
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    return Results.BadRequest("Search query cannot be empty");
+                }
 
+                var filteredOrders = db.Orders
+                                    .Where(o => o.FirstName.ToLower().Contains(query.ToLower()) ||
+                                    o.LastName.ToLower().Contains(query.ToLower()) ||
+                                    o.Email.ToLower().Contains(query.ToLower()))
+                                    .ToList();
+
+                if (filteredOrders.Count == 0)
+                {
+                    return Results.NotFound("No orders found for the given search query.");
+                }
+                else
+                {
+                    return Results.Ok(filteredOrders);
+                }
+            });
 
         }
     }
